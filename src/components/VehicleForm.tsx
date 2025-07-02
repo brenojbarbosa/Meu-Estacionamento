@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "../services/api";
 import Toast from "./Toast";
 
 export default function VehicleForm() {
@@ -16,19 +16,19 @@ export default function VehicleForm() {
   const { data: clients } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const res = await axios.get("http://177.153.58.12:11000/clients");
+      const res = await api.get("/clients");
       return res.data;
     },
   });
 
   const mutation = useMutation({
     mutationFn: async () => {
-      await axios.post("http://177.153.58.12:11000/vehicles", {
+      await api.post("/vehicles", {
         plate,
         model,
       });
 
-      const allVehiclesRes = await axios.get("http://177.153.58.12:11000/vehicles");
+      const allVehiclesRes = await api.get("/vehicles");
       const allVehicles = allVehiclesRes.data;
 
       const createdVehicle = allVehicles.find(
@@ -39,7 +39,7 @@ export default function VehicleForm() {
         throw new Error("Não foi possível localizar o veículo criado.");
       }
 
-      await axios.post("http://177.153.58.12:11000/vehicles/associate", {
+      await api.post("/vehicles/associate", {
         client_id: Number(clientId),
         vehicle_id: createdVehicle.id,
       });

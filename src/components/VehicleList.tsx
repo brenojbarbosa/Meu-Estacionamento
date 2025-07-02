@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "../services/api";
 
 export default function VehicleList() {
   const queryClient = useQueryClient();
@@ -7,14 +7,14 @@ export default function VehicleList() {
   const { data: vehicles } = useQuery({
     queryKey: ["vehicles"],
     queryFn: async () => {
-      const res = await axios.get("http://177.153.58.12:11000/vehicles");
+      const res = await api.get("/vehicles");
       return res.data;
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await axios.delete(`http://177.153.58.12:11000/vehicles/${id}`);
+      await api.delete(`/vehicles/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vehicles"] });
@@ -27,7 +27,10 @@ export default function VehicleList() {
       <h5>Lista de Veículos</h5>
       <ul className="list-group">
         {vehicles?.map((vehicle: any) => (
-          <li key={vehicle.id} className="list-group-item d-flex justify-content-between align-items-center">
+          <li
+            key={vehicle.id}
+            className="list-group-item d-flex justify-content-between align-items-center"
+          >
             {vehicle.model} - {vehicle.plate}
             <button
               className="btn btn-sm btn-danger"

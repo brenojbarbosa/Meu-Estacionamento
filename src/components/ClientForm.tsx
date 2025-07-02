@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { api } from "../services/api";
 import Toast from "./Toast";
 
 export default function ClientForm() {
@@ -14,7 +14,7 @@ export default function ClientForm() {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.post("http://177.153.58.12:11000/clients", {
+      const response = await api.post("/clients", {
         name,
         phone,
       });
