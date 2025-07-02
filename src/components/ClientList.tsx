@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { api } from "../services/api";
+
 
 export default function ClientList() {
   const queryClient = useQueryClient();
@@ -7,14 +9,14 @@ export default function ClientList() {
   const { data: clients, isLoading, error } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const res = await axios.get("http://177.153.58.12:11000/clients");
+      const res = await api.get("/clients");
       return res.data;
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await axios.delete(`http://177.153.58.12:11000/clients/${id}`);
+      await api.delete(`/clients/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
