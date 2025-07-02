@@ -23,37 +23,66 @@ export default function VehicleForm() {
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.post("http://177.153.58.12:11000/vehicles", {
+      await axios.post("http://177.153.58.12:11000/vehicles", {
         plate,
         model,
-        clientId,
       });
-      return response.data;
+
+      const allVehiclesRes = await axios.get("http://177.153.58.12:11000/vehicles");
+      const allVehicles = allVehiclesRes.data;
+
+      const createdVehicle = allVehicles.find(
+        (v: any) => v.plate === plate && v.model === model
+      );
+
+      if (!createdVehicle) {
+        throw new Error("Não foi possível localizar o veículo criado.");
+      }
+
+      await axios.post("http://177.153.58.12:11000/vehicles/associate", {
+        client_id: Number(clientId),
+        vehicle_id: createdVehicle.id,
+      });
+
+      return createdVehicle;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       setPlate("");
       setModel("");
       setClientId("");
-      setToastMsg("Veículo cadastrado com sucesso!");
+      setToastMsg("Veículo cadastrado e associado com sucesso!");
       setToastType("success");
       setShowToast(true);
     },
-    onError: () => {
-      setToastMsg("Erro ao cadastrar veículo.");
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Erro ao cadastrar ou associar veículo.";
+      setToastMsg(message);
       setToastType("danger");
       setShowToast(true);
     },
   });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (plate && model && clientId) {
+      mutation.mutate();
+    } else {
+      setToastMsg("Preencha todos os campos.");
+      setToastType("danger");
+      setShowToast(true);
+    }
+  };
+
   return (
     <>
       <form
         className="container vh-100 d-flex justify-content-center align-items-center"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (plate && model && clientId) mutation.mutate();
-        }}
+        onSubmit={handleSubmit}
       >
         <div className="w-100" style={{ maxWidth: "400px" }}>
           <div className="mb-3">

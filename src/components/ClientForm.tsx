@@ -21,7 +21,7 @@ export default function ClientForm() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["vehicles"] });
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
       setName("");
       setPhone("");
       setToastMsg("Cliente cadastrado com sucesso!");
@@ -35,14 +35,18 @@ export default function ClientForm() {
     },
   });
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name && phone) {
+      mutation.mutate();
+    }
+  };
+
   return (
     <>
       <form
         className="container vh-100 d-flex justify-content-center align-items-center"
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (name && phone) mutation.mutate();
-        }}
+        onSubmit={handleSubmit}
       >
         <div className="w-100" style={{ maxWidth: "400px" }}>
           <div className="mb-3">
@@ -70,7 +74,6 @@ export default function ClientForm() {
           </div>
         </div>
       </form>
-
 
       {showToast && (
         <Toast
