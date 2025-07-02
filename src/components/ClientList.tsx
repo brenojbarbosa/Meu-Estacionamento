@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../services/api";
+import axios from "axios";
 
 export default function ClientList() {
   const queryClient = useQueryClient();
@@ -7,14 +7,14 @@ export default function ClientList() {
   const { data: clients, isLoading, error } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
-      const res = await api.get("/clients");
+      const res = await axios.get("http://177.153.58.12:11000/clients");
       return res.data;
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/clients/${id}`);
+      await axios.delete(`http://177.153.58.12:11000/clients/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
@@ -34,7 +34,7 @@ export default function ClientList() {
             className="list-group-item d-flex justify-content-between align-items-start"
           >
             <div>
-              <div><strong>{client.name}</strong></div>
+              <div><strong>Nome:</strong> {client.name}</div>
               <div><strong>Telefone:</strong> {client.phone}</div>
               {client.vehicles?.length > 0 &&
                 client.vehicles.map((v: any) => (
